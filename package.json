@@ -9,9 +9,9 @@
     "build": "tsc --declaration",
     "compile": "npm run clean && npm run build",
     "clean": "rimraf dist",
-    "lint": "eslint src test",
+    "lint": "eslint src",
     "prepublishOnly": "npm run compile",
-    "format": "prettier --write 'src/**/*.ts' 'test/**/*.ts'",
+    "format": "prettier --write 'src/**/*.ts'",
     "watch": "npm run clean && tsc -w --declaration",
     "test:unit": "",
     "test": "npm run lint && npm run test:unit"
