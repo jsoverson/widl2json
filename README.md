@@ -1,6 +1,6 @@
 # widl2json
 
-CLI tool that converts [WIDL schemas](https://github.com/wapc/widl-spec) to JSON, see also [waPC](https://wapc.io/) and the [WIDL](https://jsoverson.github.io/widl-validator/)
+CLI tool that converts [WIDL schemas](https://github.com/wapc/widl-spec) to JSON, see also [waPC](https://wapc.io/) and the [WIDL Validator](https://jsoverson.github.io/widl-validator/)
 
 ## Installation
 
@@ -73,13 +73,15 @@ Will output:
 
 ## Usage with `jq`
 
-Print all interfaces in a schema:
+The [WIDL Validator](https://jsoverson.github.io/widl-validator/) is very helpful for visualizing the structure of the WIDL tree.
+
+### Print all interfaces in a schema:
 
 ```sh
 $ widl2json schema.widl | jq '.definitions | map(select(.kind== "InterfaceDefinition")) | length'
 ```
 
-Output a markdown-formatted list of Namespaces, their interfaces, and the interface signatures.
+### Output a markdown-formatted list of Namespaces, their interfaces, and the interface signatures.
 
 ```sh
 $ widl2json schema.widl | jq -r '.definitions[] | (select(.kind=="NamespaceDefinition")| "# Namespace `\(.name.value)`"), (select(.kind== "InterfaceDefinition") | .operations[] | "- \(.name.value)(\(.parameters[]| "\(.name.value):\(.type.name.value)")) => \(.type.name.value)") '
