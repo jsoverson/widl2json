@@ -1,106 +1,114 @@
-# Typescript boilerplate
+# widl2json
 
-This is a boilerplate typescript project that incorporates fixes and best practices I come across as I build new projects.
+CLI tool that converts [WIDL schemas](https://github.com/wapc/widl-spec) to JSON, see also [waPC](https://wapc.io/) and the [WIDL](https://jsoverson.github.io/widl-validator/)
 
-If you extend this via a fork or otherwise, please let me know so I can it to the list below.
+## Installation
 
-## Who is this for?
+```sh
+$ npm install -g widl2json
+```
 
-Anyone who uses TypeScript with Visual Studio Code and writes tests with Mocha.
+## Usage
 
-## Features
+```sh
+$ widl2json schema.widl --pretty
+```
 
-- Build and watch with tolerable TS presets.
-- Testing with mocha & chai.
-- @types definitions for mocha, chai, node, and other dependencies included.
-- Visual Studio Code project settigns preconfigured for
-  - Test Explorer UI recognizing Typescript tests
-  - Debugging Typescript tests within the IDE
-- Configuration and rc files:
-  - One configuration location for mocha, prettier, eslint & typescript so CLI programs and IDEs/extensions reuse configuration.
-  - Config files whose path can be configured from a central location have been moved to `etc/`
-  - Minimal .gitignore
+Will output:
 
-## Core npm scripts
-
-- `build`: build typescript
-- `compile`: clean & build
-- `clean`: remove build folder
-- `prepublishOnly`: compile
-- `format`: format source files inline with prettier
-- `watch`: clean && continuously build files on change
-- `lint`: lint src && test
-- `test:unit`: mocha tests
-- `test`: lint && test:unit
-
-## Visual Studio Code extensions
-
-### Testing and debugging
-
-Debugging within Visual Studio Code requires
-
-- [Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer)
-- [Mocha Test Explorer](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-mocha-test-adapter)
-
-`.vscode/settings.json` is set up to parse Typescript files and to wire Mocha Test Explorer to the appropriate launch configuration in `.vscode/launch.json`. This wiring depends on the name of the launch configuration, do not change!
-
-### Recommended plugins
-
-- [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
-- [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
-
-The ESLint plugin is preconfigured for typescript in `.vscode/settings.json`.
-
-### Additional Configuration
-
-Additional settings in `.vscode/settings.json`
-
-- `editor.formatOnSave : true` to keep manual autoformatting to a minimum
-- `debug.javascript.usePreview : false` to address debugging issues from [microsoft/vscode#102834](https://github.com/microsoft/vscode/issues/102834). This should be removed eventually.
-
-## Bash kickstart function
-
-Add this function to your .bash_profile to make initializing new projects as easy as running `kickstart my-project`
-
-This function requires [jq](https://stedolan.github.io/jq/) but that dependency is easily removable if you really don't want to install jq.
-
-```bash
-kickstart () {
-  # clone repo into directory passed as arg 1
-  git clone --depth 1 --branch master git@github.com:jsoverson/typescript-boilerplate.git $1
-  # cd into directory
-  cd $1
-  # change the "name" field in packcage.json to arg 1
-  jq --arg name "$1" '.name = $name' package.json > package.json.tmp
-  mv package.json.tmp package.json
-  # remove the origin of the original git repo
-  git remote remove origin
-  # install dependencies
-  npm install
-  # echo node and typescript version
-  echo "Node version: `node -v`"
-  echo "Typescript version: `npx tsc -v`"
-  # open VS Code
-  code .
-  # give yourself a pat on the back
-  echo "You're awesome 🤘"
+```json
+{
+  "kind": "Document",
+  "definitions": [
+    {
+      "kind": "NamespaceDefinition",
+      "name": {
+        "kind": "Name",
+        "value": "greeting"
+      },
+      "annotations": []
+    },
+    {
+      "kind": "InterfaceDefinition",
+      "operations": [
+        {
+          "kind": "OperationDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "sayHello"
+          },
+          "parameters": [
+            {
+              "kind": "ParameterDefinition",
+              "name": {
+                "kind": "Name",
+                "value": "name"
+              },
+              "type": {
+                "kind": "Named",
+                "name": {
+                  "kind": "Name",
+                  "value": "string"
+                }
+              },
+              "annotations": []
+            }
+          ],
+          "type": {
+            "kind": "Named",
+            "name": {
+              "kind": "Name",
+              "value": "string"
+            }
+          },
+          "annotations": [],
+          "unary": false
+        }
+      ],
+      "annotations": []
+    }
+  ]
 }
 ```
 
-## FAQ
+## Usage with `jq`
 
-### ESLint warnings
+Print all interfaces in a schema:
 
-The included eslint plugin for typescript has some very good defaults but they can be a little much for every project.
-
-To disable them, add the warning ID to a `"rules"` property in `etc/.eslintrc.json`. For example, the warning _`Unexpected any. Specify a different type.eslint@typescript-eslint/no-explicit-any`_ can be disabled with the following rule:
-
-```
-"rules": {
-  "@typescript-eslint/no-explicit-any": 0
-},
+```sh
+$ widl2json schema.widl | jq '.definitions | map(select(.kind== "InterfaceDefinition")) | length'
 ```
 
-## Forks
+Output a markdown-formatted list of Namespaces, their interfaces, and the interface signatures.
 
-- [typescript-boilerplate-local-server](https://github.com/jsoverson/typescript-boilerplate-local-server) - adds a local HTTP server for testing libraries that rely on HTTP transactions.
+```sh
+$ widl2json schema.widl | jq -r '.definitions[] | (select(.kind=="NamespaceDefinition")| "# Namespace `\(.name.value)`"), (select(.kind== "InterfaceDefinition") | .operations[] | "- \(.name.value)(\(.parameters[]| "\(.name.value):\(.type.name.value)")) => \(.type.name.value)") '
+```
+
+```md
+# Namespace `greeting`
+
+- sayHello(name:string) => string
+```
+
+## Options
+
+```sh
+$ widl2json --help
+
+widl2json <file> [options]
+
+Convert WIDL schemas to JSON
+
+Positionals:
+  file  Path to schema file                                             [string]
+
+Options:
+      --version  Show version number                                   [boolean]
+  -h, --help     Show help                                             [boolean]
+  -t, --terse    Omit empty arrays from the JSON      [boolean] [default: false]
+  -p, --pretty   Pretty print the JSON output         [boolean] [default: false]
+
+Examples:
+  widl2json schema.widl --pretty  Outputs pretty-printed JSON
+```

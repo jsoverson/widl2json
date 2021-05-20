@@ -2,6 +2,10 @@
   "include": ["src/**/*", "test/**/*"],
   "exclude": ["node_modules"],
   "compilerOptions": {
+    "paths": {
+      "@wapc/widl": ["./node_modules/@wapc/widl/dist/types"],
+      "@wapc/widl/*": ["./node_modules/@wapc/widl/dist/types/*"]
+    },
     /* Basic Options */
     // "incremental": true,                   /* Enable incremental compilation */
     "target": "ES2020" /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019', 'ES2020', or 'ESNEXT'. */,

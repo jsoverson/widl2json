@@ -1,8 +1,8 @@
 {
-  "name": "",
-  "description": "",
-  "author": "",
-  "version": "0.0.0",
+  "name": "widl2json",
+  "description": "WIDL -> JSON command line tool",
+  "author": "jsoverson",
+  "version": "0.0.1",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "scripts": {
@@ -13,31 +13,41 @@
     "prepublishOnly": "npm run compile",
     "format": "prettier --write 'src/**/*.ts' 'test/**/*.ts'",
     "watch": "npm run clean && tsc -w --declaration",
-    "test:unit": "mocha",
+    "test:unit": "",
     "test": "npm run lint && npm run test:unit"
   },
-  "mocha": {
-    "extends": "etc/.mocharc.json"
+  "bin": {
+    "widl2json": "./dist/src/index.js"
   },
   "prettier": "./etc/.prettierrc.json",
   "eslintConfig": {
     "extends": "./etc/.eslintrc.json"
   },
-  "keywords": [],
+  "keywords": [
+    "widl",
+    "json",
+    "converter",
+    "wasm",
+    "webassembly",
+    "wapc"
+  ],
   "license": "ISC",
   "devDependencies": {
-    "@types/chai": "^4.2.18",
-    "@types/find-root": "^1.1.2",
-    "@types/mocha": "^8.2.2",
     "@types/node": "^15.3.1",
+    "@types/verror": "^1.10.4",
+    "@types/yargs": "^16.0.2",
     "@typescript-eslint/eslint-plugin": "^4.24.0",
     "@typescript-eslint/parser": "^4.24.0",
-    "chai": "^4.3.4",
     "eslint": "^7.26.0",
-    "mocha": "^8.4.0",
     "prettier": "^2.3.0",
     "rimraf": "^3.0.2",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.4"
+  },
+  "dependencies": {
+    "@wapc/widl": "^0.0.7",
+    "np": "^7.5.0",
+    "verror": "^1.10.0",
+    "yargs": "^17.0.1"
   }
 }
