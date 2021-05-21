@@ -1,5 +1,9 @@
 namespace "greeting"
 
 interface {
-  sayHello(name: string): string
+  sayHello(msg: string): Response
+}
+
+type Response {
+  outgoing: string
 }

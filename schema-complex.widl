@@ -1,0 +1,66 @@
+namespace "tests"
+
+interface {
+  testFunction(required: Required, optional: Optional, maps: Maps, lists: Lists): Tests
+  testUnary{tests: Tests}: Tests
+  testDecode{tests: Tests}: string
+}
+
+type Tests {
+  required: Required
+  optional: Optional
+  maps: Maps
+  lists: Lists
+}
+
+"Required fields"
+type Required {
+  boolValue: bool
+  u8Value: u8
+  u16Value: u16
+  u32Value: u32
+  u64Value: u64
+  s8Value: i8
+  s16Value: i16
+  s32Value: i32
+  s64Value: i64
+  f32Value: f32
+  f64Value: f64
+  stringValue: string
+  bytesValue: bytes
+  objectValue: Thing
+}
+
+"Optional values"
+type Optional {
+  boolValue: bool?
+  u8Value: u8?
+  u16Value: u16?
+  u32Value: u32?
+  u64Value: u64?
+  s8Value: i8?
+  s16Value: i16?
+  s32Value: i32?
+  s64Value: i64?
+  f32Value: f32?
+  f64Value: f64?
+  stringValue: string?
+  bytesValue: bytes?
+  objectValue: Thing?
+}
+
+type Maps {
+  mapStringPrimative: {u32:string}
+  mapU64Primative: {u32:u64}
+}
+
+type Lists {
+  listStrings: [string]
+  listU64s: [u64]
+  listObjects: [Thing]
+  listObjectsOptional: [Thing?]
+}
+
+type Thing {
+  value: string
+}

@@ -11,63 +11,60 @@ $ npm install -g widl2json
 ## Usage
 
 ```sh
-$ widl2json schema.widl --pretty
+$ widl2json schema.widl --pretty --condensed
 ```
 
 Will output:
 
 ```json
 {
-  "kind": "Document",
-  "definitions": [
+  "namespaces": [
     {
-      "kind": "NamespaceDefinition",
-      "name": {
-        "kind": "Name",
-        "value": "greeting"
-      },
-      "annotations": []
-    },
-    {
-      "kind": "InterfaceDefinition",
-      "operations": [
+      "namespace": "greeting",
+      "interfaces": [
         {
-          "kind": "OperationDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "sayHello"
-          },
-          "parameters": [
-            {
-              "kind": "ParameterDefinition",
-              "name": {
-                "kind": "Name",
-                "value": "name"
-              },
-              "type": {
-                "kind": "Named",
-                "name": {
-                  "kind": "Name",
-                  "value": "string"
+          "operations": {
+            "sayHello": {
+              "name": "sayHello",
+              "parameters": {
+                "msg": {
+                  "name": "msg",
+                  "type": "string"
                 }
               },
-              "annotations": []
+              "type": "Response",
+              "unary": false
             }
-          ],
-          "type": {
-            "kind": "Named",
-            "name": {
-              "kind": "Name",
-              "value": "string"
-            }
-          },
-          "annotations": [],
-          "unary": false
+          }
         }
       ],
-      "annotations": []
+      "types": [
+        {
+          "name": "Response",
+          "fields": {
+            "outgoing": {
+              "name": "outgoing",
+              "type": "string"
+            }
+          }
+        }
+      ]
     }
   ]
+}
+```
+
+For the schema:
+
+```idl
+namespace "greeting"
+
+interface {
+  sayHello(msg: string): Response
+}
+
+type Response {
+  outgoing: string
 }
 ```
 
@@ -75,42 +72,46 @@ Will output:
 
 The [WIDL Validator](https://jsoverson.github.io/widl-validator/) is very helpful for visualizing the structure of the WIDL tree.
 
-### Print all interfaces in a schema:
+### Print all the types defined in a schema:
 
-```sh
-$ widl2json schema.widl | jq '.definitions | map(select(.kind== "InterfaceDefinition")) | length'
+````sh
+$ widl2json schema-complex.widl --condensed | jq '.namespaces[].types[].name'
+"Tests"
+"Required"
+"Optional"
+"Maps"
+"Lists"
+"Thing"
 ```
 
-### Output a markdown-formatted list of Namespaces, their interfaces, and the interface signatures.
+### Output a markdown-formatted list of Namespaces and their interfaces:
 
 ```sh
-$ widl2json schema.widl | jq -r '.definitions[] | (select(.kind=="NamespaceDefinition")| "# Namespace `\(.name.value)`"), (select(.kind== "InterfaceDefinition") | .operations[] | "- \(.name.value)(\(.parameters[]| "\(.name.value):\(.type.name.value)")) => \(.type.name.value)") '
-```
+$ widl2json schema-complex.widl --condensed | jq -r '.namespaces[] | "# Namespace `\(.namespace)`", (.interfaces[].operations[] | "- \(.name)(\(.parameters| map("\(.name):\(.type)")|join(", "))) => \(.type)") '
+````
 
 ```md
-# Namespace `greeting`
+# Namespace `tests`
 
-- sayHello(name:string) => string
+- testFunction(required:Required, optional:Optional, maps:Maps, lists:Lists) => Tests
+- testUnary(tests:Tests) => Tests
+- testDecode(tests:Tests) => string
 ```
 
 ## Options
 
 ```sh
-$ widl2json --help
-
 widl2json <file> [options]
 
 Convert WIDL schemas to JSON
 
 Positionals:
-  file  Path to schema file                                             [string]
+  file                                                                  [string]
 
 Options:
-      --version  Show version number                                   [boolean]
-  -h, --help     Show help                                             [boolean]
-  -t, --terse    Omit empty arrays from the JSON      [boolean] [default: false]
-  -p, --pretty   Pretty print the JSON output         [boolean] [default: false]
-
-Examples:
-  widl2json schema.widl --pretty  Outputs pretty-printed JSON
+      --version    Show version number                                 [boolean]
+  -h, --help       Show help                                           [boolean]
+  -t, --terse                                         [boolean] [default: false]
+  -c, --condensed                                     [boolean] [default: false]
+  -p, --pretty                                        [boolean] [default: false]
 ```
